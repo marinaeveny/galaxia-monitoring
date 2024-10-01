@@ -1,0 +1,16 @@
+name: Merge Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  merge-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Review
+        run: |
+          if [[ "$(jq '.reviews | map(select(.state == "APPROVED")) | length' <<< ${{ toJson(github.event.pull_request) }})" -lt 2 ]]; then
+            echo "This PR requires at least 2 approvals."
+            exit 1
+          fi
